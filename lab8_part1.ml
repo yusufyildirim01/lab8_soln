@@ -20,7 +20,7 @@ Functors - Part 1.
 
 For the first part of this lab, you will explore a realistic and
 useful application of functors -- a library to support interval
-computation. 
+computation.
 
 Intervals come up in many different contexts. As a concrete example,
 calendars need to associate events with time intervals (3-4pm or
@@ -83,10 +83,10 @@ The functor definition starts out as
         ...
       end
 
-Here, the argument to the functor is a module, given the name
-`Endpoint` and constrained to satisfy the `ORDERED_TYPE` module
-signature. Thus, we know that `Endpoint` will provide both a type
-(`Endpoint.t`) and a comparison function over that type
+Here, the argument to the `MakeInterval` functor is a module, given
+the name `Endpoint` and constrained to satisfy the `ORDERED_TYPE`
+module signature. Thus, we know that `Endpoint` will provide both a
+type (`Endpoint.t`) and a comparison function over that type
 (`Endpoint.compare`). We can and will use those in defining the module
 being defined by the functor.
 
@@ -256,11 +256,12 @@ module MakeSafeInterval (Endpoint : ORDERED_TYPE) : INTERVAL =
 (* We have successfully made our returned module abstract, but believe
 it or not, it is now too abstract. In fact, we have not exposed the
 type of endpoints to the user, meaning we cannot even create intervals
-now. To demonstrate the problem ...
+now. The abstraction barrier is too strong. To demonstrate the problem
+...
 
 ........................................................................
-Exercise 2C: Create an IntSafeInterval module using the new
-MakeSafeInterval functor.
+Exercise 2C: Create an `IntSafeInterval` module using the new
+`MakeSafeInterval` functor.
 ......................................................................*)
 
 module IntSafeInterval =
@@ -281,13 +282,14 @@ A type error will appear:
 
 To make the interface slightly less abstract, we can make use of a
 sharing constraint, which informs the compiler that a given type
-within the implementation is equal to some other type from outside the
-implementation. In this case, we want to inform the compiler the type
-of our endpoint is an int, and more generally that the type of our
-endpoint is Endpoint.t, where Endpoint was the ORDERED_TYPE module
-inputted to the functor. We can do so with the following syntax:
+*within* the implementation is equal to some other type from *outside*
+the implementation. In this case, we want to inform the compiler the
+type of our endpoint is an `int`, and more generally that the type of
+our endpoint is `Endpoint.t`, where `Endpoint` was the `ORDERED_TYPE`
+module that is the argument of the functor. We can do so with the
+following syntax:
 
-<Module_type> with type <type> = <type'>
+    <Module_type> with type <type> = <type'>
 
 For instance, we can create int interval and float interval interfaces
 that reveal the type of endpoints as follows: *)
@@ -306,7 +308,8 @@ earlier, they now present a new problem. They will result in code
 duplication in implementation. The solution to this is to use sharing
 constraints in the MakeInterval functor, exposing that the type of an
 endpoint is equal to Endpoint.t. The functor can then be used to
-create interval modules of various types without duplicating code. *)
+create interval modules of various types without duplicating
+code. That's what we'll do next. *)
 
 (*......................................................................
 Exercise 3A: Define a new functor `MakeBestInterval`. It should take an
@@ -323,11 +326,12 @@ module MakeBestInterval (Endpoint : ORDERED_TYPE)
        : (INTERVAL with type endpoint = Endpoint.t) =
                 (*  ^
                     |---- Note the addition of the sharing constraint. 
-                          Everything else stays the same. *)
+                          Literally everything else stays the same. *)
   struct
     type endpoint = Endpoint.t
-    type interval = | Interval of endpoint * endpoint
-                    | Empty
+    type interval =
+      | Interval of endpoint * endpoint
+      | Empty
 
     (* create low high -- Returns a new interval covering `low` to
        `high` inclusive. If `low` > `high`, then the interval is
@@ -376,12 +380,12 @@ expected.
 
 You may for instance want to try the problematic lines from Exercise 1C.
 
-This expression should still return true, as expected:
+The following expression should still return `true`, as expected:
 
     IntBestInterval.is_empty (IntBestInterval.create 4 3) ;;
 
-This expression should no longer return false. What does it return
-instead?
+and this expression should no longer return `false`. What does it
+return instead?
 
     IntBestInterval.is_empty (IntBestInterval.Interval (4, 3)) ;;
 ......................................................................*)

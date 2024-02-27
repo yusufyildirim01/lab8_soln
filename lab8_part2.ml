@@ -31,14 +31,16 @@ the stack module extremely basic support for serialization.
    abstraction barrier: serializing an object, manipulating its string
    representation, and then deserializing back to an object could
    allow for some invariant to be violated. Even so, serialization has
-   its uses when the circumstances are warranted.)
+   its uses when the circumstances warrant.)
 
-In order to do this with an abstract type for an element in a stack,
-we will need to have access to a function that can serialize the
-elements of the stack.
+In order to serialize stacks from an abstract stack data type, we will
+need to have access to a function that can serialize the *elements* of
+the stack.
 
-We can use a functor to generate a stack that bundles everything
-together.
+We can use a functor that takes as argument a module for the stack
+elements (including element serialization functionality) and generates
+a stack module that bundles together all of the stack functionality,
+including serialization.
 
 In order to do this, we'll first define a module interface, called
 SERIALIZE, that captures the requirements for the elements of a
@@ -132,8 +134,9 @@ module MakeStack (Element: SERIALIZE)
       List.fold_left
 
     let serialize (s : stack) : string =
-      let string_join x y = Element.serialize y
-                  ^ (if x <> "" then ":" ^ x else "") in
+      let string_join x y =
+        Element.serialize y
+          ^ (if x <> "" then ":" ^ x else "") in
       fold_left string_join "" s
   end ;;
 
@@ -160,7 +163,7 @@ module IntStack : (STACK with type element = IntSerialize.t) =
 (*......................................................................
 Exercise 1C: Make a module `IntStringStack` that creates a stack whose
 elements are `int * string` pairs. Its serialize function should output
-values as strings of the form:
+elements as strings of the form:
 
     "(N,'S')"
 
