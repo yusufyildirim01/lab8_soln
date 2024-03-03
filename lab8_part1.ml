@@ -135,7 +135,8 @@ module MakeInterval (Endpoint : ORDERED_TYPE) =
          let (_, low), (high, _)
            = ordered low1 low2, ordered high1 high2 in
          create low high
-    end ;;
+    end 
+  ;;
 
 (*......................................................................
 Exercise 1B: Using the completed functor above, instantiate an
